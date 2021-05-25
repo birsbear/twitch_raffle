@@ -408,18 +408,18 @@ class AppWindow(QDialog):
             if tier[-1] == '1':
                 self.tier1.month_flow(int(tenure), [username, '{} months'.format(tenure), tier])
                 self.tier1.tenure_flow(int(tenure), [username, '{} months'.format(tenure), tier])
-                self.tier1.streak_flow(int(streak), [username, '{} months'.format(tenure), tier])
+                self.tier1.streak_flow(int(streak), [username, '{} months'.format(streak), tier])
                 self.tier1.all.append([username, tenure, tier])
             elif tier[-1] == '2':
                 self.tier2.month_flow(int(tenure), [username, '{} months'.format(tenure), tier])
                 self.tier2.tenure_flow(int(tenure), [username, '{} months'.format(tenure), tier])
-                self.tier2.streak_flow(int(streak), [username, '{} months'.format(tenure), tier])
+                self.tier2.streak_flow(int(streak), [username, '{} months'.format(streak), tier])
                 self.tier2.all.append([username, tenure, tier])
                 
             elif tier[-1] == '3':
                 self.tier3.month_flow(int(tenure), [username, '{} months'.format(tenure), tier])
                 self.tier3.tenure_flow(int(tenure), [username, '{} months'.format(tenure), tier])
-                self.tier3.streak_flow(int(streak), [username, '{} months'.format(tenure), tier])
+                self.tier3.streak_flow(int(streak), [username, '{} months'.format(streak), tier])
                 self.tier3.all.append([username, tenure, tier])
         self.type_check()
         self.ui.tenure.setChecked(True)
