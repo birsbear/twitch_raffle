@@ -248,45 +248,39 @@ class AppWindow(QDialog):
                     
                 for ind, month in enumerate(self.sub_date):
                     rate1 = int(100*tier_rate[0]*self.sub_rate[ind])
-                    if month not in self.tier1.tenure:
-                        continue
-                    for j1 in self.tier1.tenure[month]:
-                        sub_award_list.extend([[j1[0],0,month]]*rate1)
+                    if month in self.tier1.tenure:
+                        for j1 in self.tier1.tenure[month]:
+                            sub_award_list.extend([[j1[0],0,month]]*rate1)
                         
                     rate2 = int(100*tier_rate[1]*self.sub_rate[ind])
-                    if month not in self.tier2.tenure:
-                        continue
-                    for j2 in self.tier2.tenure[month]:
-                        sub_award_list.extend([[j2[0],1,month]]*rate2)
+                    if month in self.tier2.tenure:
+                        for j2 in self.tier2.tenure[month]:
+                            sub_award_list.extend([[j2[0],1,month]]*rate2)
                         
                     rate3 = int(100*tier_rate[2]*self.sub_rate[ind])
-                    if month not in self.tier3.tenure:
-                        continue
-                    for j3 in self.tier3.tenure[month]:
-                        sub_award_list.extend([[j3[0],2,month]]*rate3)
-                    pass
+                    if month in self.tier3.tenure:
+                        for j3 in self.tier3.tenure[month]:
+                            sub_award_list.extend([[j3[0],2,month]]*rate3)
+                    
                 
             elif self.ui.streak.isChecked():
                 
                 for ind, month in enumerate(self.sub_date):
                     rate1 = int(100*tier_rate[0]*self.sub_rate[ind])
-                    if month not in self.tier1.streak:
-                        continue
-                    for j1 in self.tier1.streak[month]:
-                        sub_award_list.extend([[j1[0],0,month]]*rate1)
+                    if month in self.tier1.streak:
+                        for j1 in self.tier1.streak[month]:
+                            sub_award_list.extend([[j1[0],0,month]]*rate1)
                         
                     rate2 = int(100*tier_rate[1]*self.sub_rate[ind])
-                    if month not in self.tier2.streak:
-                        continue
-                    for j2 in self.tier2.streak[month]:
-                        sub_award_list.extend([[j2[0],1,month]]*rate2)
+                    if month in self.tier2.streak:
+                        for j2 in self.tier2.streak[month]:
+                            sub_award_list.extend([[j2[0],1,month]]*rate2)
                         
                     rate3 = int(100*tier_rate[2]*self.sub_rate[ind])
-                    if month not in self.tier3.streak:
-                        continue
-                    for j3 in self.tier3.streak[month]:
-                        sub_award_list.extend([[j3[0],2,month]]*rate3)
-                    pass
+                    if month in self.tier3.streak:
+                        for j3 in self.tier3.streak[month]:
+                            sub_award_list.extend([[j3[0],2,month]]*rate3)
+                    
             else:
                 return
             
