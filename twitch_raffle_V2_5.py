@@ -43,6 +43,7 @@ class Tier:
         self.month = {}
         self.tenure = {}
         self.streak = {}
+        self.sub_type = {}
     def month_flow(self,month,tlist):
         if month not in self.month :
             self.month[month] = [tlist]
@@ -104,6 +105,8 @@ class AppWindow(QDialog):
         self.ui.checkBox_2.stateChanged.connect(self.type_check)
         self.ui.checkBox_3.stateChanged.connect(self.type_check)
         
+        self.ui.check_gift.stateChanged.connect(self.type_check)
+        self.ui.gift_month.textChanged.connect(self.type_check)
         
                                 ### 訂閱時間 ###        
         
@@ -114,10 +117,11 @@ class AppWindow(QDialog):
         
         
                                 ### 訂閱名單 ###        
-        self.header_list = ['ID', '日期','Tier']
+        self.header_list = ['ID','月份','層級','類別']
         self.table_model = PyQt5.QtGui.QStandardItemModel(self.ui.sub_list)
-        self.table_model.setColumnCount(3)
+        self.table_model.setColumnCount(4)
         self.table_model.setHorizontalHeaderLabels(self.header_list)
+        self.ui.sub_list.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.sub_list.setModel(self.table_model)
         self.ui.load_sub.clicked.connect(self.open_file)
         self.ui.tenure.toggled.connect(lambda:self.type_check())
@@ -237,7 +241,8 @@ class AppWindow(QDialog):
             self.sub_type_check = [self.ui.checkBox_1.checkState(),self.ui.checkBox_2.checkState(),self.ui.checkBox_3.checkState()]
             self.sub_type_rate = [float(self.ui.lineEdit_1.text()),float(self.ui.lineEdit_2.text()),float(self.ui.lineEdit_3.text())]
             
-            
+            gift = self.ui.check_gift.checkState()
+            gift_month = int(self.ui.gift_month.text())
 
             sub_award_list = []
             tier_rate = [i/2*j for i,j in zip(self.sub_type_check, self.sub_type_rate)]
@@ -250,16 +255,22 @@ class AppWindow(QDialog):
                     rate1 = int(100*tier_rate[0]*self.sub_rate[ind])
                     if month in self.tier1.tenure:
                         for j1 in self.tier1.tenure[month]:
+                            if gift == 2 and j1[3] == 'gift' and month < gift_month:
+                                continue
                             sub_award_list.extend([[j1[0],0,month]]*rate1)
                         
                     rate2 = int(100*tier_rate[1]*self.sub_rate[ind])
                     if month in self.tier2.tenure:
                         for j2 in self.tier2.tenure[month]:
+                            if gift == 2 and j2[3] == 'gift' and month < gift_month:
+                                continue
                             sub_award_list.extend([[j2[0],1,month]]*rate2)
                         
                     rate3 = int(100*tier_rate[2]*self.sub_rate[ind])
                     if month in self.tier3.tenure:
                         for j3 in self.tier3.tenure[month]:
+                            if gift == 2 and j3[3] == 'gift' and month < gift_month:
+                                continue
                             sub_award_list.extend([[j3[0],2,month]]*rate3)
                     
                 
@@ -269,16 +280,22 @@ class AppWindow(QDialog):
                     rate1 = int(100*tier_rate[0]*self.sub_rate[ind])
                     if month in self.tier1.streak:
                         for j1 in self.tier1.streak[month]:
+                            if gift == 2 and j1[3] == 'gift' and month < gift_month:
+                                continue
                             sub_award_list.extend([[j1[0],0,month]]*rate1)
                         
                     rate2 = int(100*tier_rate[1]*self.sub_rate[ind])
                     if month in self.tier2.streak:
                         for j2 in self.tier2.streak[month]:
+                            if gift == 2 and j2[3] == 'gift' and month < gift_month:
+                                continue
                             sub_award_list.extend([[j2[0],1,month]]*rate2)
                         
                     rate3 = int(100*tier_rate[2]*self.sub_rate[ind])
                     if month in self.tier3.streak:
                         for j3 in self.tier3.streak[month]:
+                            if gift == 2 and j3[3] == 'gift' and month < gift_month:
+                                continue
                             sub_award_list.extend([[j3[0],2,month]]*rate3)
                     
             else:
@@ -368,11 +385,11 @@ class AppWindow(QDialog):
         file = QFileDialog.getOpenFileUrl(self, 'Sub csv', "", "sub file (*.csv)")
         if file[0].url() == '':
             return
-        print(file)
+        # print(file)
         self.file_name = file[0].fileName()
         file_path = file[0].path()
-        print('Path:',file[0].path())
-        print('URL:',file[0].url())
+        # print('Path:',file[0].path())
+        # print('URL:',file[0].url())
         self.path = file_path[1:-len(self.file_name)]
         self.init_file()
     def init_file(self):
@@ -388,10 +405,11 @@ class AppWindow(QDialog):
         self.sub_tier_list = []
         self.tenure_list = []
         self.streak_list = []
+        self.sub_type = []
         
         
         for ind,row in self.subcriber_list.subscriber_raw.iterrows():
-            username, tier, tenure, streak, = row['Username'], row['Current Tier'], row['Tenure'], row['Streak']
+            username, tier, tenure, streak, sub_type = row['Username'], row['Current Tier'], row['Tenure'], row['Streak'], row['Sub Type']
             if username == self.subcriber_list.streamer:
                 continue
             self.sub_id_list.append(username)
@@ -399,22 +417,23 @@ class AppWindow(QDialog):
             self.sub_tier_list.append(tier)
             self.tenure_list.append(tenure)
             self.streak_list.append(streak)
+            self.sub_type.append(sub_type)
             if tier[-1] == '1':
-                self.tier1.month_flow(int(tenure), [username, '{} months'.format(tenure), tier])
-                self.tier1.tenure_flow(int(tenure), [username, '{} months'.format(tenure), tier])
-                self.tier1.streak_flow(int(streak), [username, '{} months'.format(streak), tier])
-                self.tier1.all.append([username, tenure, tier])
+                self.tier1.month_flow(int(tenure), [username, '{} months'.format(tenure), tier, sub_type])
+                self.tier1.tenure_flow(int(tenure), [username, '{} months'.format(tenure), tier, sub_type])
+                self.tier1.streak_flow(int(streak), [username, '{} months'.format(streak), tier, sub_type])
+                self.tier1.all.append([username, tenure, tier, sub_type])
             elif tier[-1] == '2':
-                self.tier2.month_flow(int(tenure), [username, '{} months'.format(tenure), tier])
-                self.tier2.tenure_flow(int(tenure), [username, '{} months'.format(tenure), tier])
-                self.tier2.streak_flow(int(streak), [username, '{} months'.format(streak), tier])
-                self.tier2.all.append([username, tenure, tier])
+                self.tier2.month_flow(int(tenure), [username, '{} months'.format(tenure), tier, sub_type])
+                self.tier2.tenure_flow(int(tenure), [username, '{} months'.format(tenure), tier, sub_type])
+                self.tier2.streak_flow(int(streak), [username, '{} months'.format(streak), tier, sub_type])
+                self.tier2.all.append([username, tenure, tier, sub_type])
                 
             elif tier[-1] == '3':
-                self.tier3.month_flow(int(tenure), [username, '{} months'.format(tenure), tier])
-                self.tier3.tenure_flow(int(tenure), [username, '{} months'.format(tenure), tier])
-                self.tier3.streak_flow(int(streak), [username, '{} months'.format(streak), tier])
-                self.tier3.all.append([username, tenure, tier])
+                self.tier3.month_flow(int(tenure), [username, '{} months'.format(tenure), tier, sub_type])
+                self.tier3.tenure_flow(int(tenure), [username, '{} months'.format(tenure), tier, sub_type])
+                self.tier3.streak_flow(int(streak), [username, '{} months'.format(streak), tier, sub_type])
+                self.tier3.all.append([username, tenure, tier, sub_type])
         self.type_check()
         self.ui.tenure.setChecked(True)
     
@@ -431,7 +450,9 @@ class AppWindow(QDialog):
         
         self.table_model.clear()
         self.sub_type_check = [self.ui.checkBox_1.checkState(),self.ui.checkBox_2.checkState(),self.ui.checkBox_3.checkState()]
-        
+        gift = self.ui.check_gift.checkState()
+        gift_month = int(self.ui.gift_month.text())
+        # print(gift_month)
         self.sub_date = []
         self.sub_rate = []
         
@@ -454,25 +475,34 @@ class AppWindow(QDialog):
                     for i2 in self.sub_date:
                         if i2 in self.tier1.tenure:
                             for j in self.tier1.tenure[i2]:
+                                if gift == 2 and j[3] == 'gift' and i2 < gift_month:
+                                    continue
                                 self.table_model.setItem(inde,0,QStandardItem(j[0]))
                                 self.table_model.setItem(inde,1,QStandardItem(j[1]))
                                 self.table_model.setItem(inde,2,QStandardItem(j[2]))
+                                self.table_model.setItem(inde,3,QStandardItem(j[3]))
                                 inde += 1
                 if i == 1 and c == 2:
                     for i2 in self.sub_date:
                         if i2 in self.tier2.tenure:
                             for j in self.tier2.tenure[i2]:
+                                if gift == 2 and j[3] == 'gift' and i2 < gift_month:
+                                    continue
                                 self.table_model.setItem(inde,0,QStandardItem(j[0]))
                                 self.table_model.setItem(inde,1,QStandardItem(j[1]))
                                 self.table_model.setItem(inde,2,QStandardItem(j[2]))
+                                self.table_model.setItem(inde,3,QStandardItem(j[3]))
                                 inde += 1
                 if i == 2 and c == 2:
                     for i2 in self.sub_date:
                         if i2 in self.tier3.tenure:
                             for j in self.tier3.tenure[i2]:
+                                if gift == 2 and j[3] == 'gift' and i2 < gift_month:
+                                    continue
                                 self.table_model.setItem(inde,0,QStandardItem(j[0]))
                                 self.table_model.setItem(inde,1,QStandardItem(j[1]))
                                 self.table_model.setItem(inde,2,QStandardItem(j[2]))
+                                self.table_model.setItem(inde,3,QStandardItem(j[3]))
                                 inde += 1
                             
         elif self.ui.streak.isChecked():
@@ -481,27 +511,38 @@ class AppWindow(QDialog):
                     for i2 in self.sub_date:
                         if i2 in self.tier1.streak:
                             for j in self.tier1.streak[i2]:
+                                if gift == 2 and j[3] == 'gift' and i2 < gift_month:
+                                    continue
                                 self.table_model.setItem(inde,0,QStandardItem(j[0]))
                                 self.table_model.setItem(inde,1,QStandardItem(j[1]))
                                 self.table_model.setItem(inde,2,QStandardItem(j[2]))
+                                self.table_model.setItem(inde,3,QStandardItem(j[3]))
                                 inde += 1
                 if i == 1 and c == 2:
                     for i2 in self.sub_date:
                         if i2 in self.tier2.streak:
                             for j in self.tier2.streak[i2]:
+                                if gift == 2 and j[3] == 'gift' and i2 < gift_month:
+                                    continue
                                 self.table_model.setItem(inde,0,QStandardItem(j[0]))
                                 self.table_model.setItem(inde,1,QStandardItem(j[1]))
                                 self.table_model.setItem(inde,2,QStandardItem(j[2]))
+                                self.table_model.setItem(inde,3,QStandardItem(j[3]))
                                 inde += 1
                 if i == 2 and c == 2:
                     for i2 in self.sub_date:
                         if i2 in self.tier3.streak:
                             for j in self.tier3.streak[i2]:
+                                if gift == 2 and j[3] == 'gift' and i2 < gift_month:
+                                    continue
                                 self.table_model.setItem(inde,0,QStandardItem(j[0]))
                                 self.table_model.setItem(inde,1,QStandardItem(j[1]))
                                 self.table_model.setItem(inde,2,QStandardItem(j[2]))
+                                self.table_model.setItem(inde,3,QStandardItem(j[3]))
                                 inde += 1
+        self.table_model.setHorizontalHeaderLabels(['ID','月份','層級','類別'])
         self.ui.sub_list.setModel(self.table_model)
+        
         
     def add_award(self):
         if self.ui.new_award.text() == '' or self.ui.new_award.text().isspace() == True:
@@ -578,5 +619,5 @@ class AppWindow(QDialog):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = AppWindow()
-    w.show()
-    sys.exit(app.exec_())
+    # w.show()
+    # sys.exit(app.exec_())
