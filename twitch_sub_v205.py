@@ -314,7 +314,7 @@ class Ui_Form(object):
         font.setPointSize(14)
         self.check_gift.setFont(font)
         self.check_gift.setText("")
-        self.check_gift.setChecked(True)
+        self.check_gift.setChecked(False)
         self.check_gift.setObjectName("check_gift")
 
         self.retranslateUi(Form)
